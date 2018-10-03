@@ -102,11 +102,16 @@ class App extends React.Component {
 
   fetchWeather() {
     let dateFrom = this.state.dateFrom;
+    let dateTo = this.state.dateTo;
     let dateFromMoment = moment(`${dateFrom[2]} ${dateFrom[1]} ${dateFrom[0]}`);
+    let dateToMoment = moment(`${dateTo[2]} ${dateTo[1]} ${dateTo[0]}`);
     let dateTodayMoment = moment()
-    console.log(dateFromMoment)
-    console.log(dateTodayMoment)
-    console.log("MOMENT" + dateFromMoment.diff(dateTodayMoment, 'days'));       // 1
+    let daysUntilDateFrom = dateFromMoment.diff(dateTodayMoment, 'days')+1
+    let daysUntilDateTo = dateToMoment.diff(dateTodayMoment, 'days')+1
+    console.log(`${daysUntilDateFrom} ${daysUntilDateTo}`)
+    // console.log(dateFromMoment)
+    // console.log(dateTodayMoment)
+    // console.log("MOMENT" + dateFromMoment.diff(dateTodayMoment, 'days'));       // 1
     // a.diff(b, 'years', true);
     // console.log("moment" + moment((dateFrom[2]+dateFrom[1]+dateFrom[0]), "YYYYMMDD").fromNow());
     const apiKey = 'febcfe1533da47fab5a477c0658e1016'
@@ -119,7 +124,7 @@ class App extends React.Component {
       return fetch(
         `https://api.weatherbit.io/v2.0/forecast/energy?city=${city.city}&country=${city.countryCode}&key=${apiKey}`)
         .then(response => response.json())
-        .then(result => ({ [result.city_name] : result}))
+        .then(result => ({ [result.city_name] : result.data.slice(daysUntilDateFrom,daysUntilDateTo+1)[0].sun_hours}))
     }))
       .then(results => {
         console.log(results)
