@@ -28,7 +28,6 @@ class App extends React.Component {
       this.readLocalStorage();
       this.fetchFlights();
       this.fetchWeather();
-      console.log(this.state.flightSearches)
     });
   }
 
@@ -69,10 +68,8 @@ class App extends React.Component {
 
 
   fetchFlights() {
-    console.log(this.state.cities);
     const dateFrom = this.state.dateFrom.join('/')
     const dateTo = this.state.dateTo.join('/')
-    console.log('df =' + this.state.dateFrom);
     const originCode = this.state.originCode;
 
 
@@ -88,8 +85,8 @@ class App extends React.Component {
       })))
     }))
       .then(results => {
-        this.writeLocalStorage(results)
-        console.log(results)
+        // this.writeLocalStorage(results)
+        console.log('hello')
       });
   }
 
@@ -97,7 +94,6 @@ class App extends React.Component {
     this.setState({
       searchResults:searchResults
     },() => localStorage.setItem('searchResults', JSON.stringify(this.state.searchResults)))
-    console.log(searchResults);
   }
 
   fetchWeather() {
@@ -124,9 +120,10 @@ class App extends React.Component {
       return fetch(
         `https://api.weatherbit.io/v2.0/forecast/energy?city=${city.city}&country=${city.countryCode}&key=${apiKey}`)
         .then(response => response.json())
-        .then(result => ({ [result.city_name] : result.data.slice(daysUntilDateFrom,daysUntilDateTo+1)[0].sun_hours}))
+        .then(result => ({ [result.city_name] : result.data.slice(daysUntilDateFrom,daysUntilDateTo+1).reduce((a,b)=>(a + b.sun_hours),0)/result.data.slice(daysUntilDateFrom,daysUntilDateTo+1).length}))
     }))
       .then(results => {
+        console.log('126')
         console.log(results)
       });
   }
