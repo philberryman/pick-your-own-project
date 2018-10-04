@@ -22,7 +22,7 @@ class App extends React.Component {
     this.readLocalStorage = this.readLocalStorage.bind(this)
     this.writeLocalStorageFlights = this.writeLocalStorageFlights.bind(this)
     this.writeLocalStorageWeather = this.writeLocalStorageWeather.bind(this)
-    this.getWeather = this.getWeather.bind(this)
+    this.displayResults = this.displayResults.bind(this);
 
     this.data = this.data.bind(this);
 ;  }
@@ -101,7 +101,7 @@ class App extends React.Component {
         .then(response => response.json())
         .then(result => (result.data.reduce((prev, curr) => {
           return prev.price < curr.price ? prev : curr;})))
-        .then(result => ({flight:result,cityName:city.city,countryCode:city.countryCode,airportCode:city.airportCode}))
+        .then(result => ({flight:result,city:city.city,countryCode:city.countryCode,airportCode:city.airportCode}))
     }))
       .then(results => {
         // this.writeLocalStorage(results)
@@ -130,7 +130,7 @@ class App extends React.Component {
     // console.log(searchResults);
   }
 
-  fetchWeather(done) {
+  fetchWeather() {
     let dateFrom = this.state.dateFrom;
     let dateTo = this.state.dateTo;
     let dateFromMoment = moment(`${dateFrom[2]} ${dateFrom[1]} ${dateFrom[0]}`);
@@ -153,9 +153,12 @@ class App extends React.Component {
 
     console.log(this.state.weatherForecasts)
     console.log(this.state.flightSearches)
+  
+    const resultsReferences = []
 
     Promise.all(this.state.flightSearches.map(city => {
-      let cityDate = city.city + moment().format('YYYY MM DD').toString();
+      let cityDate = city.flight.mapIdfrom + '-' + city.flight.mapIdto + '-' + moment().format('YYYY MM DD').toString();
+      resultsReferences.push(cityDate)
       console.log(cityDate);
       if(!this.state.weatherForecasts[cityDate]) {
         return fetch(
@@ -164,31 +167,32 @@ class App extends React.Component {
           .then(forecast => {
             console.log('set new forecast')
             this.setState(prevState => {
-              
+              console.log(city.city)
               const newWeather = Object.assign({}, prevState.weatherForecasts, {
                 [cityDate] : {
                   forecast: forecast,
-                  sunshine: forecast.data.slice(daysUntilDateFrom,daysUntilDateTo+1).reduce((a,b)=>(a + b.sun_hours),0)
-                }
+                  sunshine: forecast.data.slice(daysUntilDateFrom,daysUntilDateTo+1).reduce((a,b)=>(a + b.sun_hours),0),
+                  flight: city.flight
+                }              
               });
-
               return {
                 weatherForecasts: newWeather
               }
             },()=>{
               localStorage.setItem('weatherForecasts', JSON.stringify(this.state.weatherForecasts))
-              done()
-            })
-            
+            })    
           })
         }      
-    }))  
-        
-
+    })).then(()=>this.displayResults(resultsReferences))  
 }
 
-    getWeather(cities) {
+    displayResults(resultsReferences) {
+      const results = resultsReferences.map(cityDate=>this.state.weatherForecasts[cityDate])
 
+      console.log(this.state.weatherForecasts)
+      console.log(results);
+      console.log(resultsReferences)
+   
     }
 
 
