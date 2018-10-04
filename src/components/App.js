@@ -29,28 +29,31 @@ class App extends React.Component {
 
   componentWillMount() {
     this.data(() => {
-      this.fetchFlights();
-      this.fetchWeather();
-    });
+      this.readLocalStorage(() => {
+        this.fetchFlights(() => {
+          this.fetchWeather();
+    })})});
   }
 
 
-  readLocalStorage() {
-    let flightSearches = JSON.parse(localStorage.getItem('flightSearches'))
-    if (flightSearches) {
-      this.setState({
-        flightSearches : flightSearches
-      })
-    }
+  readLocalStorage(done) {
+    // let flightSearches = JSON.parse(localStorage.getItem('flightSearches'))
+    // if (flightSearches) {
+    //   this.setState({
+    //     flightSearches : flightSearches
+    //   })
+    // }
 
     let weatherForecasts = JSON.parse(localStorage.getItem('weatherForecasts'))
     if (weatherForecasts) {
       this.setState({
         weatherForecasts : weatherForecasts
-      })
+      }, done)
+    } else {
+      done()
     }
-    console.log(53)
-    console.log(weatherForecasts)
+    // console.log(53)
+    // console.log(weatherForecasts)
   }
 
   data(done) {
@@ -77,12 +80,13 @@ class App extends React.Component {
       dateTo: dateTo.split('/')
     }, done)
 
-    this.readLocalStorage();
+   
+
 
   }
 
 
-  fetchFlights() {
+  fetchFlights(done) {
     const dateFrom = this.state.dateFrom.join('/')
     const dateTo = this.state.dateTo.join('/')
     const originCode = this.state.originCode;
@@ -97,10 +101,11 @@ class App extends React.Component {
         .then(response => response.json())
         .then(result => (result.data.reduce((prev, curr) => {
           return prev.price < curr.price ? prev : curr;})))
+        .then(result => ({flight:result,cityName:city.city,countryCode:city.countryCode,airportCode:city.airportCode}))
     }))
       .then(results => {
         // this.writeLocalStorage(results)
-        console.log('flights fetched')
+        this.setState({flightSearches:results},done)
       });
   }
 
@@ -125,7 +130,7 @@ class App extends React.Component {
     // console.log(searchResults);
   }
 
-  fetchWeather() {
+  fetchWeather(done) {
     let dateFrom = this.state.dateFrom;
     let dateTo = this.state.dateTo;
     let dateFromMoment = moment(`${dateFrom[2]} ${dateFrom[1]} ${dateFrom[0]}`);
@@ -147,8 +152,9 @@ class App extends React.Component {
 
 
     console.log(this.state.weatherForecasts)
+    console.log(this.state.flightSearches)
 
-    Promise.all(cities.map(city => {
+    Promise.all(this.state.flightSearches.map(city => {
       let cityDate = city.city + moment().format('YYYY MM DD').toString();
       console.log(cityDate);
       if(!this.state.weatherForecasts[cityDate]) {
@@ -169,10 +175,13 @@ class App extends React.Component {
               return {
                 weatherForecasts: newWeather
               }
-            },()=>localStorage.setItem('weatherForecasts', JSON.stringify(this.state.weatherForecasts)))
+            },()=>{
+              localStorage.setItem('weatherForecasts', JSON.stringify(this.state.weatherForecasts))
+              done()
+            })
             
           })
-        }       
+        }      
     }))  
         
 
