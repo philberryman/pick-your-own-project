@@ -120,7 +120,7 @@ class App extends React.Component {
       return fetch(
         `https://api.weatherbit.io/v2.0/forecast/energy?city=${city.city}&country=${city.countryCode}&key=${apiKey}`)
         .then(response => response.json())
-        .then(result => ({ [result.city_name] : result.data.slice(daysUntilDateFrom,daysUntilDateTo+1).reduce((a,b)=>(a + b.sun_hours),0)/result.data.slice(daysUntilDateFrom,daysUntilDateTo+1).length}))
+        .then(result => ({ [result.city_name] : result.data.slice(daysUntilDateFrom,daysUntilDateTo+1).reduce((a,b)=>(a + b.sun_hours),0)}))
     }))
       .then(results => {
         console.log('126')
