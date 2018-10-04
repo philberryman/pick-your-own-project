@@ -1,9 +1,9 @@
 import React from 'react';
 
-function Flight ({cityFrom, cityTo, price}) {
+function Flight ({result}) {
     return (
         <div>
-            {cityFrom} {cityTo} {price} 
+            {result.flight.mapIdfrom} {result.flight.mapIdto} {result.flight.price} {result.sunshine} {result.flight.price / result.sunshine}
         </div>
       );
 };

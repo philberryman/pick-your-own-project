@@ -15,7 +15,8 @@ class App extends React.Component {
       originCode:'',
       dateFrom:[],
       dateTo:[],
-      weatherForecasts:{}}
+      weatherForecasts:{},
+      results:[]}
 
     this.fetchFlights = this.fetchFlights.bind(this);
     this.fetchWeather = this.fetchWeather.bind(this);
@@ -172,7 +173,8 @@ class App extends React.Component {
                 [cityDate] : {
                   forecast: forecast,
                   sunshine: forecast.data.slice(daysUntilDateFrom,daysUntilDateTo+1).reduce((a,b)=>(a + b.sun_hours),0),
-                  flight: city.flight
+                  flight: city.flight,
+                  sunCostPerHour: city.flight.price / forecast.data.slice(daysUntilDateFrom,daysUntilDateTo+1).reduce((a,b)=>(a + b.sun_hours),0)
                 }              
               });
               return {
@@ -188,10 +190,12 @@ class App extends React.Component {
 
     displayResults(resultsReferences) {
       const results = resultsReferences.map(cityDate=>this.state.weatherForecasts[cityDate])
+      results.sort((r1,r2) => r1.sunCostPerHour - r2.sunCostPerHour)
+      this.setState({
+        results:results
+      })
 
-      console.log(this.state.weatherForecasts)
       console.log(results);
-      console.log(resultsReferences)
    
     }
 
@@ -201,9 +205,9 @@ class App extends React.Component {
   
 
   render() {
-    console.log(this.state.weatherForecasts)
+    console.log(this.state.results)
     return <div className="app">
-      <Flights searchResults={this.state.searchResults} />
+      <Flights results={this.state.results} />
     </div>;
   }
 }

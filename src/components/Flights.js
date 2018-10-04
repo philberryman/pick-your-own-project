@@ -1,14 +1,12 @@
 import React from 'react';
 import Flight from './Flight'
 
-function Flights ({searchResults}, {weatherForecast}) {
+function Flights ({results}) {
     return (
         <div className="flights" id="flights">
-          {searchResults.map(result => (
+          {results.map(result => (
             <Flight
-              cityFrom={result.cityFrom}
-              cityTo={result.cityTo}
-              price={result.price}
+              result={result} key={result.flight.id}
             />
           ))}
         </div>
