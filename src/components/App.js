@@ -1,6 +1,6 @@
 import React from "react";
 import moment from 'moment';
-import Flights from './flights'
+import Results from './results'
 
 import "../styles/components/app.scss";
 
@@ -191,6 +191,7 @@ class App extends React.Component {
     displayResults(resultsReferences) {
       const results = resultsReferences.map(cityDate=>this.state.weatherForecasts[cityDate])
       results.sort((r1,r2) => r1.sunCostPerHour - r2.sunCostPerHour)
+
       this.setState({
         results:results
       })
@@ -199,17 +200,30 @@ class App extends React.Component {
    
     }
 
-
-
     
-  
 
-  render() {
-    console.log(this.state.results)
-    return <div className="app">
-      <Flights results={this.state.results} />
-    </div>;
-  }
+
+
+    render(){
+      return (
+        <div className="app">
+          <div className="top">
+          {/* <p className="top__favourites" onClick={this.showFavourites}>Favourites ({this.state.favouritesLength})</p> */}
+            <div className="search">
+              <div className="search__inner-div">
+                {/* <Search receiveQuery={this.receiveQuery}/> */}
+                <h1>PHLX</h1>
+              </div>
+            </div>
+          </div>
+  
+          <div className="container">
+  
+           <Results results={this.state.results}/>
+          </div>
+        </div>
+      )
+    }  
 }
 
 export default App;
